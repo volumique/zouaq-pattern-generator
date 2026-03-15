@@ -1,0 +1,214 @@
+.heroSection {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at center, var(--surface) 0%, var(--background) 100%);
+}
+
+.heroBackground {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heroContent {
+  position: relative;
+  z-index: var(--z-content);
+  text-align: center;
+  max-width: 800px;
+  padding: var(--spacing-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-size: clamp(3rem, 8vw, 5rem);
+  line-height: 1.1;
+  color: var(--primary);
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  margin-bottom: var(--spacing-2);
+}
+
+.subtitle {
+  font-family: var(--font-family-base);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  color: var(--foreground);
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.9;
+}
+
+.ctaButton {
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem;
+  padding: var(--spacing-4) var(--spacing-10);
+  height: auto;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 20px rgba(228, 160, 16, 0.2);
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(228, 160, 16, 0.4);
+}
+
+.ctaContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.developerNote {
+  font-family: var(--font-family-base);
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  max-width: 500px;
+  opacity: 0.8;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.developerNote a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.developerNote a:hover {
+  text-decoration-color: var(--primary);
+}
+
+.featuresSection {
+  padding: var(--spacing-20) var(--spacing-8);
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.sectionTitle {
+  font-family: var(--font-family-heading);
+  font-size: 2.5rem;
+  color: var(--secondary);
+  text-align: center;
+  margin-bottom: var(--spacing-12);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-8);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.featureCard {
+  background: var(--card);
+  padding: var(--spacing-8);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  transition: transform 0.3s ease;
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+}
+
+.featureIcon {
+  color: var(--primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.featureTitle {
+  font-family: var(--font-family-heading);
+  font-size: 1.5rem;
+  color: var(--foreground);
+}
+
+.featureText {
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}
+
+.gallerySection {
+  padding: var(--spacing-20) var(--spacing-8);
+  background-color: var(--background);
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-8);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.galleryItem {
+  aspect-ratio: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.galleryItem svg {
+  width: 80%;
+  height: 80%;
+  transition: transform 0.5s ease;
+}
+
+.galleryItem:hover svg {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.paletteSection {
+  padding: var(--spacing-16) var(--spacing-8);
+  text-align: center;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.paletteGrid {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-8);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-8);
+}
+
+.colorSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.swatchCircle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+  border: 2px solid var(--border);
+}
+
+.swatchName {
+  font-family: var(--font-family-monospace);
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}

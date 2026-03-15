@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://zouaq.floot.app/sitemap.xml
+Sitemap: https://zouaq.etienne.design/sitemap.xml

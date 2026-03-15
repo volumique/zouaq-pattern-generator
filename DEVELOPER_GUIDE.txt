@@ -1,0 +1,176 @@
+# DEVELOPER GUIDE -- Moroccan Patterns Generator
+
+This document serves as a reference guide for developers working on the Moroccan Patterns Generator (Zellige & Zouaq). It details the architecture, data flow, main types, and the method for extending the application.
+
+## 1. ARCHITECTURE OVERVIEW
+
+The application is built on a clear architecture with three distinct layers:
+- **Engine (helpers)**: Contains all the mathematical, geometric, and configuration logic, with no direct dependency on the DOM.
+- **Rendering (components)**: React components dedicated to display, notably the highly-optimized SVG rendering and UI controls.
+- **Pages**: Entry point of the application, managing global state and orchestrating the Engine and Rendering.
+
+### Main Data Flow:
+`PatternConfig` -> `normalizeConfig` -> `generateTileShapes` -> `generatePattern` -> `GeneratedPattern` -> `PatternSvgRenderer` -> `SVG DOM`
+
+### Export Flow:
+`PatternConfig` + `GeneratedPattern` -> `exportPatternSvg` -> SVG Blob generation -> Download of the `.svg` file
+
+---
+
+## 2. FILE STRUCTURE
+
+### Configuration
+- **helpers/patternConfig.tsx**: Definition of main types (`PatternConfig`, `Shape`, `GeneratedPattern`) and default constants (`DEFAULT_CONFIG`, `COLOR_PRESETS`).
+- **helpers/patternDefaults.tsx**: `normalizeConfig` function that merges user configuration with default values (returns a `NormalizedPatternConfig`).
+
+### Generation Engine
+- **helpers/patternGenerator.tsx**: The orchestrator. Calculates dimensions, determines the tiling mode, calls the factory, positions tiles, and handles interstices.
+- **helpers/patternTileFactory.tsx**: The router (factory). Sends the configuration to the appropriate sub-generator based on the pattern `type`.
+- **Specific sub-generators**:
+  - `islamicGeometry.tsx`: Zellige (stars with customizable branches).
+  - `zouaqStrapwork.tsx`: Zouaq (strapwork, ribbons, rosettes).
+  - `rosettePattern.tsx`: Concentric rosettes.
+  - `fractalRosettePattern.tsx`: Recursive fractal rosettes.
+  - `mandalaPattern.tsx`: Arabesque mandalas.
+  - `amazighPattern.tsx`: Berber patterns (grids, chevrons, diamonds).
+  - `shamsaPattern.tsx`: Solar patterns (Shamsa) with pentagons.
+  - `tawriqPattern.tsx`: Floral arabesques (palmettes, Bezier curves).
+  - `tastirPattern.tsx`: Rigid geometry (Khatam, Maqrouts, Kuhat, Kufi).
+  - `cachemirePattern.tsx`: Paisley patterns (Boteh) and inner rosettes.
+
+### Geometry
+- **helpers/geometryUtils.tsx**: Mathematical utilities (polar coordinates, intersections, rotations, rounded corners `createRoundedPolygonPath`).
+- **helpers/starShapeGenerator.tsx**: Specific functions for generating star polygons with inner/outer radii.
+- **helpers/kaleidoscopeGeometry.tsx**: Logic for calculating wedges (pie slices) and transformations for the kaleidoscope effect.
+
+### Tiling
+- **helpers/tilingCalculator.tsx**: Position calculations for simple tiling (grid, diagonal, brick, hexagon) and implementation of the 17 Wallpaper Groups.
+- **helpers/advancedTiling.tsx**: Entry point for complex mathematical tilings.
+- **helpers/advancedTilingUtils.tsx**: Types and normalization function for advanced tiling.
+- **Advanced sub-modules** (e.g. `advancedTilingTriangular`, `advancedTilingSquare`, `advancedTilingPenrose`, `advancedTilingHexagonal`, `advancedTilingPentagonal`): Specific tessellation algorithms.
+
+### Interstices
+- **helpers/intersticeGenerator.tsx**: Generates small decorative shapes (stars, diamonds, crosses) to fill gaps in traditional tiling.
+
+### Export
+- **helpers/exportPatternSvg.tsx**: Replicates SVG rendering logic statically as a string to create a downloadable file.
+
+### UI Components
+- **components/PatternSvgRenderer.tsx**: The highly-performant native SVG rendering component. Handles `<pattern>`, `<symbol>`, and `<use>`.
+- **components/PatternPreview.tsx**: Responsive container to display the rendering in the editor.
+- **components/FullscreenPattern.tsx**: Wrapper for full-screen display.
+- **components/GeneratorControls.tsx**: Main sidebar, integrating sub-components for each configuration section (`GeneratorControlsGeometry`, `GeneratorControlsColors`, etc.).
+- **components/LandingHeroPattern.tsx**: Decorative animation pattern for the landing page.
+
+### Pages and Layouts
+- **pages/_index.tsx**: Home page (Landing page).
+- **pages/generator.tsx**: Main generator application.
+- **components/GeneratorPageLayout.tsx** / **LandingPageLayout.tsx**: Encompassing page structure (global styles, fonts, etc.).
+
+---
+
+## 3. MAIN TYPES
+
+- **PatternConfig**: Global state dictating what the pattern looks like. Groups properties:
+  - *Base*: pattern type, colors, stroke width.
+  - *Specific*: settings unique to each pattern (Zouaq, Rosette, Fractal, Mandala, Amazigh, Shamsa, Tawriq, Tastir, Cachemire).
+  - *Tiling*: tiling mode, spacing, rotation, offset, advanced/wallpaper parameters.
+  - *Kaleidoscope*: activation, segment count, mirror, rotation, blend mode, kaleidoscope tile shape.
+- **NormalizedPatternConfig** (`Required<PatternConfig>`): Safe version of the configuration where all optional keys have been filled with `DEFAULT_CONFIG` values.
+- **GeneratedPattern**: Object returned by the engine. Contains:
+  - `shapes[]`: Flat list of ALL shapes (used historically or for direct renders).
+  - `tileShapes[]`: Shapes making up a SINGLE base tile.
+  - `tilePositions[]`: List of translations/rotations/scales for each iteration of the tile.
+  - Optimizations: `useSimpleTiling`, `skipLegacyShapes`, `centerOffset`.
+- **Shape**: Final rendering object for the SVG. Contains `points` or a `path`, `color`, `stroke`, `strokeWidth`, and potentially a `clipPath`.
+- **RawTileShape**: Intermediate format used within the `patternTileFactory` before conversion to the final rendering format.
+
+---
+
+## 4. DETAILED DATA FLOW
+
+When a user modifies a setting in the UI (e.g., branch count slider):
+
+1. **State Update**: `setConfig` is called in `pages/generator.tsx`.
+2. **Debounce**: The `useDebounce` hook intercepts the new configuration and waits for 150ms of inactivity before validating it, thus preventing the UI from freezing during a slider drag.
+3. **Memoization (useMemo)**: The newly validated configuration triggers a call to the main `generatePattern` function.
+4. **Normalization**: `normalizeConfig` merges the configuration with `DEFAULT_CONFIG`.
+5. **Tile Generation**: `generateTileShapes` (via the factory) dispatches the configuration to the right algorithm (e.g., `islamicGeometry` or `zouaqStrapwork`) to produce a list of `RawTileShape`.
+6. **Tiling Calculation**: Depending on the chosen mode (Simple, Wallpaper, or Advanced), `patternGenerator` calculates a grid of positions (`tilePositions[]`).
+7. **Expansion or Skip**:
+   - If the mode is classic, it expands tiles via a loop to populate `shapes[]`.
+   - If an optimization is possible (e.g., Wallpaper Groups without kaleidoscope), the `skipLegacyShapes` flag is set to `true` to spare the CPU.
+8. **Return**: A complete `GeneratedPattern` object is produced.
+9. **SVG Rendering**: `PatternSvgRenderer` receives this new object. Thanks to `React.memo` and its own `useMemo` hooks, it generates the `<defs>` and the vector DOM very efficiently.
+
+---
+
+## 5. HOW TO ADD A NEW PATTERN TYPE
+
+To add a new pattern (e.g., "arabesqueSimple"), follow these steps:
+
+1. **Create the logic**: Create `helpers/arabesqueSimplePattern.tsx` with a `generateArabesqueSimpleTile` function returning an array of shapes.
+2. **Define the type**: In `helpers/patternConfig.tsx`, add `"arabesqueSimple"` to the `PatternType` union. Also add specific options to the `PatternConfig` interface (e.g., `arabesqueCurve?: number`).
+3. **Add defaults**: In `DEFAULT_CONFIG` (in `patternConfig.tsx`), add default values for the new options.
+4. **Register in the factory**: In `helpers/patternTileFactory.tsx`, add a `case "arabesqueSimple":` to the `switch`, and map the parameters to your new function.
+5. **Create the UI**: Create a `components/GeneratorControlsArabesqueSimple.tsx` component with sliders/toggles modifying the config.
+6. **Integrate into the sidebar**: In `components/GeneratorControls.tsx`, add a condition `const showArabesqueControls = config.type === "arabesqueSimple"` and embed your new component inside an `Accordion` or `GeneratorControlsSection` component.
+
+---
+
+## 6. TILING SYSTEM
+
+The engine handles 3 distinct space-tiling systems:
+
+- **Simple Tiling (`tilingCalculator`)**:
+  - Grid, offset diagonal, brick layout (with offset), hexagonal honeycombs.
+  - Direct calculation in rows / columns.
+- **Wallpaper Groups (`tilingCalculator`)**:
+  - Mathematical implementation of the 17 `Wallpaper Groups` (e.g., `p4m` heavily used in Zellige).
+  - Defines fundamental transformations (translation, rotation, reflection with `scaleX`/`scaleY` = -1).
+- **Advanced Tiling (`advancedTiling`)**:
+  - Geometric and aperiodic tessellations (Triangles, Archimedean 4.8.8, Quadrilaterals, Penrose, and 5 classes of Convex Pentagonal tilings).
+
+---
+
+## 7. KALEIDOSCOPE SYSTEM
+
+Rather than recalculating every pattern shape by geometric rotation, the kaleidoscope approach manipulates the vector render directly (like an After Effects plugin):
+- **Wedges (Pie Slices)**: The overall SVG is generated, but masked via a triangular `clipPath` (wedge) starting from the center.
+- **Transforms**: This masked wedge is then copied `N` times via the SVG `<use>` tag or directly within `<g>` groups, with successive rotations of `360/N` degrees.
+- **Mirror**: Every other segment can undergo a `scale(-1, 1)` to create perfect symmetry.
+- **Kaleidoscopic Tiling**: The generated center itself can be seamlessly tiled in square, hexagonal, or triangular frames, allowing or restricting visual overflow.
+
+---
+
+## 8. PERFORMANCE OPTIMIZATIONS
+
+Generating thousands of vector shapes is heavy. Optimizations include:
+
+- **Memoization (`useMemo` / `React.memo`)**: Massively used in `PatternSvgRenderer` and `PatternPreview` to recalculate only what has changed.
+- **Native SVG Tiling (`<pattern>`)**: Instead of generating 10,000 `<path>` tags, we generate 1 single tile in a `<pattern>`, and a simple `<rect>` fills infinite space.
+- **Symbolic Cloning (`<symbol>` / `<use>`)**: For Wallpaper Groups (which require rotations impossible in a `<pattern>`), we place the tile in a `<symbol>` and generate only tiny `<use>` tags.
+- **Throttling (`ResizeObserver`)**: Window resizes are throttled so as not to lag the Preview in real-time.
+- **Debouncing**: `useDebounce` on the config to suspend generation during rapid slider movements.
+- **`skipLegacyShapes` Flag**: Asks the generator (JS side) to completely ignore the mathematical expansion phase when the SVG trick (`<pattern>` / `<symbol>`) is active.
+
+---
+
+## 9. SVG EXPORT
+
+The `exportPatternSvg` function generates the SVG file code on the fly. Three paths coexist:
+1. **Normal**: Loops through shapes injecting `d`, `fill` attributes, etc.
+2. **Simple Kaleidoscope**: Generates wedge `clipPath` definitions and creates one `<g>` per segment with the `transform` attribute.
+3. **Tiled Kaleidoscope**: Manages an `NxN` grid of kaleidoscopes. Generates cell constraint masks and carefully nests transformation groups.
+
+*Note: The function creates a `Blob`, converts it to an Object URL, and triggers a hidden click on an `<a>` link to force a download from the client browser.*
+
+---
+
+## 10. CODE CONVENTIONS
+
+- **Naming**: Variables and functions in `camelCase`. React components in `PascalCase`. Types and Interfaces in `PascalCase`.
+- **Structure**: No arbitrary sub-folders (framework limitations). Components and their CSS modules live on the same level.
+- **CSS**: Exclusive use of CSS Modules (`.module.css`). Global CSS variables for colors and spacing (`var(--spacing-X)`, `var(--primary)`).
+- **TypeScript**: Strict typing required. No `any` (unless an extreme documented hack). Use of `Required<T>` or exhaustive interfaces to eliminate undefined-check verbosity.
+- **Export**: Named exports (`export const...`) everywhere, except for Page Components (`export default`) as required by the framework's routing.

@@ -1,0 +1,257 @@
+.sidebar {
+  width: 320px;
+    height: 100%;
+  max-height: 100%;
+  background-color: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.header {
+  padding: var(--spacing-4) var(--spacing-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.subtitle {
+  font-family: var(--font-family-base);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.sectionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.label {
+  font-family: var(--font-family-base);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-1);
+}
+
+.valueDisplay {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-top: -0.5rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.presetGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-1);
+}
+
+.presetButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--animation-duration-fast) ease;
+  font-family: var(--font-family-base);
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+}
+
+.presetButton:hover {
+  border-color: var(--primary);
+  background-color: color-mix(in srgb, var(--card) 95%, var(--primary) 5%);
+}
+
+.activePreset {
+  border-color: var(--primary);
+  background-color: color-mix(in srgb, var(--card) 90%, var(--primary) 10%);
+  color: var(--primary-foreground);
+}
+
+.presetSwatch {
+  display: flex;
+  gap: 1px;
+  width: 100%;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.presetSwatch div {
+  flex: 1;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2);
+}
+
+.colorInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.colorInputGroup label {
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+}
+
+.colorInput {
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+}
+
+.footer {
+  padding: var(--spacing-4);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  background-color: var(--sidebar);
+}
+
+.shapesCount {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-align: center;
+  padding-bottom: var(--spacing-1);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.actionButton {
+  width: 100%;
+  flex: 1;
+}
+
+.collapsibleTrigger {
+  width: 100%;
+  padding: var(--spacing-2);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  transition: background-color var(--animation-duration-fast) ease;
+}
+
+.collapsibleTrigger:hover {
+  background-color: color-mix(in srgb, var(--surface) 95%, white 5%);
+}
+
+.collapsibleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.collapsibleIcon {
+  flex-shrink: 0;
+}
+
+.description {
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+  margin: var(--spacing-1) 0 0 0;
+  line-height: 1.3;
+}
+
+/* Accordion Specific Overrides */
+.accordionItem {
+  margin-bottom: var(--spacing-1) !important;
+  box-shadow: none !important;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  border-radius: 0 !important;
+}
+
+.accordionTrigger {
+  padding: var(--spacing-2) var(--spacing-3) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  background-color: var(--surface) !important;
+}
+
+.accordionTrigger:hover {
+  background-color: color-mix(in srgb, var(--surface) 95%, white 5%) !important;
+}
+
+.accordionContent {
+  background-color: var(--sidebar) !important;
+}
+
+.accordionContentInner {
+  padding: var(--spacing-3) !important;
+}
+
+.credit {
+  font-family: var(--font-family-base);
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+  text-align: center;
+  margin-top: var(--spacing-3);
+  opacity: 0.8;
+}
+
+.credit a {
+  color: var(--muted-foreground);
+  text-decoration: none;
+  transition: color var(--animation-duration-fast) ease;
+}
+
+.credit a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}

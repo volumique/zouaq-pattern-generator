@@ -1,0 +1,19 @@
+.footer {
+    padding: 4px var(--spacing-4);
+  text-align: center;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  border-top: 1px solid var(--border);
+  background-color: var(--background);
+}
+
+.link {
+  color: var(--foreground);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}

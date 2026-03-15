@@ -1,0 +1,11 @@
+.layout {
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-family-base);
+}
+
+.layout ::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
